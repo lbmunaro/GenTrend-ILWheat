@@ -27,7 +27,7 @@ The repository is organized to streamline the analysis, from data preparation to
   - `GenTrend-ILWheat_data_2022nov10.csv`: Phenotypic data from the University of Illinois wheat breeding program's advanced yield trials from 2001 to 2021. The dataset is available on The Triticae Toolbox (T3) database accessible at: https://wheat.triticeaetoolbox.org/.
   - `Pheno-Blups-Blues.RData`: Dataset with genotype's blues and weights for each trait within each trial, single-trial reliabilities, and clean phenotypic data.
   - `Trends.RData`: Dataset with results from the genetic, nongenetic, and phenotypic trend analyses.
-  - `GenCorr.RData`: Dataset with results from the genetic, nongenetic, and phenotypic trend analyses.
+  - `GenCorr.RData`: Dataset with results from the genetic correlation among traits analysis.
   - `2022_fsa_acres_web_082222.csv`: 2022 USDA-FSA crop acreage data reported used to create Figure 2. This data was obtained from https://www.fsa.usda.gov/tools/informational/freedom-information-act-foia/electronic-reading-room/frequently-requested/crop-acreage-data
 
 ## Usage
