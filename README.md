@@ -2,7 +2,7 @@
 
 ## Overview
 This repository contains R scripts developed for analyzing genetic, non-genetic, and phenotypic trends in winter wheat, spanning 21 years of breeding data from the University of Illinois. This analysis is detailed in the manuscript:  
-**Munaro et al., 2025. "Genetic Trends Due to 21 Years of Winter Wheat Breeding at the University of Illinois."**
+**Munaro et al., 2025. "Genetic Gain Due to 21 Years of Winter Wheat Breeding at the University of Illinois."**
 
 The repository is organized to streamline the analysis, from data preparation to trend analysis and genetic correlation among traits.
 
