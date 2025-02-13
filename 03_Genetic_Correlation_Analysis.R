@@ -51,7 +51,7 @@ dat <- blues.na |>
 
 # Further organize the dataset to ensure all traits (yield, height, test weight, heading time) are non-NA
 dat <- dat |>
-  select(-c(std_error,wt)) |> # Wide format to check trait availability
+  dplyr::select(-c(std_error,wt)) |> # Wide format to check trait availability
   pivot_wider(names_from = var, values_from = prd_val) |>
   filter_at(.vars = c('grain_yield','heading_time','plant_height','test_weight'),
             ~!is.na(.)) |> # Keep only rows with all traits observed
