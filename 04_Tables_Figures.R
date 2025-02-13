@@ -21,18 +21,6 @@ load('Data/GenCorr.Rdata')
 # Tables ----
 
 ## Table 1 ----
-# Number of years, locations, trials, genotypes, and total observations per trait
-pheno |>
-    group_by(var) |>
-    mutate(tot=length(id)) |>
-    summarise(nyear=length(unique(year)),
-              nloc=length(unique(loc)),
-              nenv=length(unique(env)),
-              ngen=length(unique(gen)),
-              tot=unique(tot))
-nrow(pheno)
-
-## Table 2 ----
 # Rates of change in genetic, nongenetic, and total phenotypic values for soft red 
 # winter wheat from the University of Illinois wheat breeding program from 2001 to 2021 for
 # grain yield, plant height, test weight, and heading time
@@ -50,7 +38,7 @@ out_trends |>
   dplyr::select(var,trend,value) |>
   pivot_wider(names_from = trend, values_from = value)
 
-## Table 3 ----
+## Table 2 ----
 # Genetic correlation among traits across the first five years (2001 to 2005) and the
 # last five years (2017 to 2021). The standard error follows the genetic correlation 
 # coefficients
@@ -60,7 +48,7 @@ gencorr
 
 ## Figure 2 ----
 # Illinois map showing the six test locations. The orange shades represent the 2022 
-# wheat planted acreage per county (USDA-FSA, 2022)
+# wheat planted hectares per county (USDA-FSA, 2022)
 
 library(sf) # Simple Features for R
 library(raster) # Geographic Data Analysis and Modeling
@@ -83,7 +71,7 @@ county <- map_data("county") |>
   mutate(subregion=str_replace_all(subregion," ",""),
          subregion=str_replace_all(subregion,"[.]",""))
 
-wheat_ac <- read.csv("Data/2022_fsa_acres_web_082222.csv") |>
+wheat_ha <- read.csv("Data/2022_fsa_acres_web_082222.csv") |>
   mutate_if(is.character,~tolower(.)) |>
   dplyr::filter(Crop%in%"wheat") |>
   mutate(Planted.Acres=str_replace(Planted.Acres,",",""),
@@ -96,21 +84,25 @@ wheat_ac <- read.csv("Data/2022_fsa_acres_web_082222.csv") |>
                                    c("dewitt"="de witt","dupage"="du page","st. clair"="st clair","dekalb"="de kalb" ))) |>
   mutate(subregion=str_replace_all(subregion," ",""),
          subregion=str_replace_all(subregion,"[.]",""))|>
+  mutate(Planted.Hectares = round(Planted.Acres*0.404686,0)) |>
   glimpse()
 
-breaks <- c(1, 1000, 5000, 10000, 25000, 50000, 100000)
-labels <- c("< 1000", "1001 to 5000", "5001 to 10000", "10001 to 25000", "25001 to 50000", "> 50001")
+breaks <- c(1, 500, 1000, 2500, 5000, 10000, 20000, 40000)
+labels <- c("< 500", "501 to 1,000", "1,001 to 2,500", "2,501 to 5,000",
+            "5,001 to 10,000", "10,001 to 20,000", "> 20,000")
 
-county_ac <- county |>
-  left_join(wheat_ac) |>
-  mutate(Planted.Acres = ifelse(Planted.Acres == 0, NA, Planted.Acres)) |>
-  mutate(classes = cut(Planted.Acres, breaks=breaks, labels = labels, include.lowest = TRUE, right = FALSE)) |>
+county_ha <- county |>
+  left_join(wheat_ha) |>
+  mutate(Planted.Hectares = ifelse(Planted.Hectares == 0, NA, Planted.Hectares)) |>
+  mutate(classes = cut(Planted.Hectares, breaks=breaks, labels = labels, include.lowest = TRUE, right = FALSE)) |>
   glimpse()
 
 ggplot() +
-  geom_polygon(data = county_ac, aes(x = long, y = lat, group = group, fill = classes), color = "gray70") +
-  scale_fill_brewer(name = "Planted acres", palette = "Oranges", na.value = "white", drop= TRUE, 
-                    labels = c("< 1000", "1001 to 5000", "5001 to 10000", "10001 to 25000", "25001 to 50000", "> 50001", "Not estimated")) +
+  geom_polygon(data = county_ha, aes(x = long, y = lat, group = group, fill = classes), color = "gray70") +
+  scale_fill_brewer(name = "Planted area (ha)", palette = "Oranges", na.value = "white", drop= TRUE, 
+                    labels = c("< 500", "501 to 1,000", "1,001 to 2,500", "2,501 to 5,000",
+                               "5,001 to 10,000", "10,001 to 20,000", "> 20,000",
+                               "Not estimated")) +
   geom_polygon(data = map_data, aes(x = long, y = lat, group = group), fill = "transparent", color = "gray50") +
   geom_point(data = loc_coord, aes(x = long, y = lat, group = NA), color = "#13294B", size = 1) +
   geom_point(data = loc_coord, aes(x = long, y = lat), color = "#13294B", size = 2, shape = 21) + 
@@ -130,39 +122,53 @@ ggplot() +
   annotation_north_arrow(location="bl",pad_x=unit(0,"in"),pad_y=unit(0.2,"in"),
                          style = north_arrow_nautical,
                          height = unit(0.5,"in"),width = unit(0.5,"in"))
-#ggsave("Figure2.png", width = 6, height = 4, units = "in", dpi = 320)
+ggsave("Figures/Figure2.tif", width = 7, height = 5, units = "in", dpi = 300)
 
 ## Figure 3 ----
 # Traits evaluated within each trial (combination of location and year). The colors 
 # represent the number of genotypes evaluated within each trial, and the white tile represents 
 # an unobserved trait.
+
+fig3_summary <- pheno |>
+  group_by(var) |>
+  summarise(nyear = length(unique(year)),
+            nloc = length(unique(loc)),
+            nenv = length(unique(env)),
+            ngen = length(unique(gen)),
+            tot_obs = n()) |>
+  mutate(tot_obs = formatC(tot_obs, format = "f", big.mark = ",", digits = 0),
+         nenv = formatC(nenv, format = "f", big.mark = ",", digits = 0))
+
 pheno |>
-  group_by(year,loc,var) |>
-  summarise(no_gen=length(unique(gen))) |>
-  pivot_wider(names_from = loc,
-              values_from = no_gen) |>
-  pivot_longer(names_to = 'loc',
-               values_to = 'no_gen',
-               cols = 3:8) |>
-  ggplot(aes(year,loc)) +
-  geom_tile(aes(fill=no_gen), color='black', na.rm = T) +
-  facet_wrap(~var,
-             labeller=labeller(var=c('grain_yield'='Grain yield',
-                                     'heading_time'='Heading time',
-                                     'plant_height'='Plant height',
-                                     'test_weight'='Test weight'))) +
-  scale_fill_gradient(name = 'Number of \ngenotypes',
-                      high = '#FF552E', low = '#13294B',
-                      na.value='white') +
-  xlab('Year') + ylab('Location') +
+  group_by(year, loc, var) |>
+  summarise(no_gen = length(unique(gen)), .groups = "drop") |>
+  pivot_wider(names_from = loc, values_from = no_gen) |>
+  pivot_longer(names_to = "loc", values_to = "no_gen", cols = 3:8) |>
+  ggplot(aes(year, loc)) +
+  geom_tile(aes(fill = no_gen), color = "black", na.rm = TRUE) +
+  facet_wrap(~var, labeller = labeller(var = c(
+    'grain_yield' = paste0("Grain yield\n(Trials: ", fig3_summary$nenv[fig3_summary$var == "grain_yield"], 
+                           ", Obs.: ", fig3_summary$tot_obs[fig3_summary$var == "grain_yield"], ")"),
+    'heading_time' = paste0("Heading time\n(Trials: ", fig3_summary$nenv[fig3_summary$var == "heading_time"], 
+                            ", Obs.: ", fig3_summary$tot_obs[fig3_summary$var == "heading_time"], ")"),
+    'plant_height' = paste0("Plant height\n(Trials: ", fig3_summary$nenv[fig3_summary$var == "plant_height"], 
+                            ", Obs.: ", fig3_summary$tot_obs[fig3_summary$var == "plant_height"], ")"),
+    'test_weight' = paste0("Test weight\n(Trials: ", fig3_summary$nenv[fig3_summary$var == "test_weight"], 
+                           ", Obs.: ", fig3_summary$tot_obs[fig3_summary$var == "test_weight"], ")")
+  ))) +
+  scale_fill_gradient(name = "Number of \ngenotypes",
+                      high = "#FF552E", low = "#13294B",
+                      na.value = "white") +
+  xlab("Year") + ylab("Location") +
   coord_equal() +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, hjust=0.5, vjust=0.5, size = 8),
-        plot.margin = margin(10,25,0,0),
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5, size = 8),
+        plot.margin = margin(10, 25, 0, 0),
         axis.text.y = element_text(size = 8),
-        axis.title.x = element_text(size = 14),
-        axis.title.y = element_text(size = 14), panel.grid = element_blank())
-# ggsave("Figure3.png", width = 6.5, height = 4, units = "in", dpi=320)
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12), 
+        panel.grid = element_blank())
+ggsave("Figures/Figure3.tif", width = 7, height = 4.5, units = "in", dpi = 300)
 
 ## Figure 4 ----
 # Boxplot of average reliabilities within a trial for each trait. The horizontal lines 
@@ -186,7 +192,7 @@ blups  |>
         axis.title.x = element_text(size = 14),
         axis.title.y = element_text(size = 14),
         legend.position = 'none', panel.grid = element_blank())
-# ggsave("Figure4.png", width = 6, height = 4, units = "in", dpi=320)
+ggsave("Figures/Figure4.tif", width = 7, height = 4, units = "in", dpi=300)
 
 ## Figure 5 ----
 # Genetic trend of grain yield (A), heading time (B), and test weight (C) in soft red 
@@ -293,4 +299,6 @@ combined_plot <- YLD +
   plot_layout(heights = c(2, 1)) + # Adjust the height ratio
   plot_annotation(tag_levels = 'A') # Add A, B, C labels
 combined_plot
-#ggsave("Figure5.png", plot = combined_plot, width = 6.5, height = 6.5, units = "in", dpi=320)
+ggsave("Figures/Figure5.tif", plot = combined_plot, width = 7, height = 7, units = "in", dpi=300)
+
+# End ----
