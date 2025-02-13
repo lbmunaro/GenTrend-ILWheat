@@ -1,7 +1,7 @@
 # GenTrend-ILWheat
 
 ## Overview
-This repository contains R scripts developed for analyzing genetic, non-genetic, and phenotypic trends in winter wheat, spanning 21 years of breeding data from the University of Illinois. This analysis is detailed in the manuscript:  
+This repository contains R scripts developed for analyzing genetic, nongenetic, and phenotypic trends in winter wheat, spanning 21 years of breeding data from the University of Illinois. This analysis is detailed in the manuscript:  
 **Munaro et al., 2025. "Genetic Gain Due to 21 Years of Winter Wheat Breeding at the University of Illinois."**
 
 The repository is organized to streamline the analysis, from data preparation to trend analysis and genetic correlation among traits.
@@ -11,10 +11,10 @@ The repository is organized to streamline the analysis, from data preparation to
 ### Scripts
 
 1. **01_Data_Preparation_Single_Trial_Analysis.R**  
-   - Prepares and cleans data, calculates single-trial BLUPs (Best Linear Unbiased Predictions) and BLUEs (Best Linear Unbiased Estimates) for each genotype across multiple environments.
+   - Prepares and cleans data, and calculates single-trial BLUPs (Best Linear Unbiased Predictions) and BLUEs (Best Linear Unbiased Estimates) for each genotype across multiple environments.
 
 2. **02_Gen_Nongen_Pheno_Trend_Analysis.R**  
-   - Conducts trend analysis to estimate genetic, non-genetic (environmental), and total phenotypic trends for each trait over the study period.
+   - Conducts trend analysis to estimate genetic, nongenetic (environmental), and total phenotypic trends for each trait over the study period.
 
 3. **03_Genetic_Correlation_Analysis.R**  
    - Computes genetic correlations among traits (grain yield, heading time, plant height, and test weight).
