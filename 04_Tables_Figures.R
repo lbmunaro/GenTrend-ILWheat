@@ -300,8 +300,8 @@ ggsave('Figures/Figure5.tif', plot = combined_plot, width = 7, height = 7, units
 
 ## Table S1 ----
 # Rates of change in genetic, nongenetic, and total phenotypic values for soft red 
-# winter wheat from the University of Illinois wheat breeding program from 2005 to 2021 for
-# grain yield, plant height, test weight, and heading time
+# winter wheat from the University of Illinois wheat breeding program from 2005 to 2021, 
+# with two check genotypes for grain yield, plant height, test weight, and heading time
 
 out_trends_17yr |>
   dplyr::select(var, fixeff) |>
@@ -319,7 +319,7 @@ out_trends_17yr |>
 ## Figure S1 ----
 # Genetic trend of grain yield (A), heading time (B), and test weight (C) in soft red 
 # winter wheat from 2005 to 2021, based on data from the University of Illinois wheat 
-# breeding program. The orange line represents the genetic trend, while the dotted lines
+# breeding program with two check genotypes. The orange line represents the genetic trend, while the dotted lines
 # delineate the upper and lower boundaries of the 95% confidence interval, which are 
 # shaded. Each point corresponds to the estimated average genetic value among the test 
 # entries released each year. The genetic trend value, standard error, and significance are 
