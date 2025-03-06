@@ -98,7 +98,7 @@ mod.trends <-
     # Genetic trend figure data
     ## Predict genetic trend line for visualization
     gen_line <- predict(mod_gen,  classify='gidyr_n:check_f',
-                        levels=list(check_f="FALSE", gidyr_n=c(unique(dat$year_n))))$pvals |>
+                        levels=list(check_f='FALSE', gidyr_n=c(unique(dat$year_n))))$pvals |>
       as.data.frame() |> clean_names() |> 
       rename(pval_line=predicted_value, se_line=std_error) |>
       mutate(gidyr=factor(gidyr_n),
@@ -106,7 +106,7 @@ mod.trends <-
     
     ## Predict genetic trend points for specific years
     gen_pts <- predict(mod_gen_pt, classify='gidyr:check_f',
-                       levels=list(check_f="FALSE", gidyr=factor(c(unique(dat$year_n)))))$pvals |>
+                       levels=list(check_f='FALSE', gidyr=factor(c(unique(dat$year_n)))))$pvals |>
       as.data.frame() |>clean_names() |> 
       rename(pval_point=predicted_value,se_point=std_error)
     
