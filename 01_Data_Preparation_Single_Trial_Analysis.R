@@ -189,7 +189,7 @@ blues <- out_blues |>
   group_by(gen) |>
   mutate(gen=as.factor(gen),
          gidyr=min(as.numeric(as.character(year))), # First year genotype entered trial
-         # First year (2001) we consider "IL-98" lines as first entry
+         # First year (2001) we consider 'IL-98' lines as first entry
          gidyr=ifelse(gidyr!=2001,gidyr,ifelse(grepl('^98',gen),2001,NA)), 
          # Add NA to gidyr for genotypes we exclude from the analysis
          gidyr=ifelse(!grepl('^\\d',gen),NA,gidyr), # Do not starts with number (not IL)
